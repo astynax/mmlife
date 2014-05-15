@@ -17,6 +17,8 @@
   [field pos val]
   (assoc-in field [:cells pos] val))
 
+;;;;;;;;;;;; Статаистика по ячейкам ;;;;;;;;;;;;;
+
 (defn neibs
   [field [x y]]
   (for [dy [-1 0 1]
@@ -24,31 +26,61 @@
         :when (not (= dx dy 0))]
     (wrap field [(+ x dx) (+ y dy)])))
 
-(defn update!
-  "update for transient"
-  ([tr key func]
-     (update! tr key func nil))
-  ([tr key func default]
-     (let [val (get tr key default)]
-       (assoc! tr key (func val)))))
+;; статистика по соседям (с.) ячейки
+(def empty-stats
+  {:neibs {}  ;; отображение значения с. в кол-во с. с этим значением
+   :total 0}) ;; общее кол-во с. у ячейки
 
-(defn neib-counts
+(defn update-stats
+  [stats val]
+  (-> stats
+      (update-in [:total] inc)
+      (update-in [:neibs val] #(inc (or % 0)))))
+
+;; обновление transient map со значением по умолчанию
+(defn update-default!
+  "update for transient"
+  [tr key func default]
+  (let [val (get tr key default)]
+    (assoc! tr key (func val))))
+
+;; сборщик статистики по полю
+;; возвращает отображение позиции ячейки в запись статистики
+;; (отображаются позиции всех ячеек с ненулевым кол-вом соседей)
+(defn collect-stats
   [field]
-  (let [cells (:cells field)]
+  (letfn [(process-cell! [res [pos val]]
+            (reduce (fn [acc neib]
+                      (update-default! acc neib
+                                       #(update-stats % val)
+                                       empty-stats))
+                    res
+                    (neibs field pos)))]
     (persistent!
-     (reduce (fn [t p]
-               (reduce #(update! %1 %2 inc 0)
-                       t
-                       (neibs field p)))
+     (reduce process-cell!
              (transient {})
-             (keys cells)))))
+             (:cells field)))))
+
+;;;;;;;;;;;;;; Обработка поля ;;;;;;;;;;;;;
 
 (defn rule
-  [n s]
-  (case [n s]
-    [3 nil] 1
-    ([2 1] [3 1]) 1
-    nil))
+  [stats val]
+  (letfn [(choice [xs]
+            (nth xs (rand-int (count xs))))]
+    (let [ns (:neibs stats)]
+      (case [(:total stats) val]
+        [3 nil] (case (count ns)
+                  ;; все три родителя одного вида - вид сохраняется
+                  1 (first ns)
+                  ;; два вида - выбираем тот, которого больше
+                  2 (let [[[v1 c1] [v2 c2]] (seq ns)]
+                      (if (> c1 c2) v1 v2))
+                  ;; все три родителя разного вида - выбираем случайного
+                  (-> ns vals choice))
+        ;; ячейки с парой-тройкой соседей - выживают
+        ([2 1] [3 1]) val
+        ;; прочие - мрут
+        nil))))
 
 (defn cells-seq
   [{:keys [mx my]}]
