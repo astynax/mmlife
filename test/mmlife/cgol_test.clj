@@ -53,16 +53,15 @@
              [9 0]       [1 0]
              [9 1] [0 1] [1 1]}))))
 
-(deftest neib-counts-test
-  (testing "two near cells"
-    (is (= (-> f10x10
-               (insert [0 0] 1)
-               (insert [1 0] 1)
-               neib-counts
-               set)
-           #{[[9 9] 1] [[0 9] 2] [[1 9] 2] [[2 9] 1]
-             [[9 0] 1] [[0 0] 1] [[1 0] 1] [[2 0] 1]
-             [[9 1] 1] [[0 1] 2] [[1 1] 2] [[2 1] 1]}))))
+(deftest update-stats-test
+  (testing "functionality and commutativity"
+    (is (= {:neibs {1 5, 2 1} :total 6}
+           (-> {:neibs {1 4} :total 4}
+               (update-stats 1)
+               (update-stats 2))
+           (-> {:neibs {1 4} :total 4}
+               (update-stats 2)
+               (update-stats 1))))))
 
 (deftest populate-test
   (testing "populatig of empty filed"
@@ -72,11 +71,12 @@
                populate
                populate))))
 
+  ;; блок, даже гетерогенный - стабилен
   (let [block-in-3x3 (-> (empty-field 3 3)
                          (insert [0 0] 1)
-                         (insert [1 0] 1)
-                         (insert [0 1] 1)
-                         (insert [1 1] 1))]
+                         (insert [1 0] 2)
+                         (insert [0 1] 3)
+                         (insert [1 1] 4))]
     (testing "block on 3x3 field"
       (is (= block-in-3x3
              (populate block-in-3x3)
@@ -89,6 +89,8 @@
                            (insert [1 1] 1)
                            (insert [1 2] 1))]
     (testing "blinker"
+      ;; мигалка менняет состояние от хода к ходу,
+      ;; возвращаясь в исходное состояние каждый второй ход
       (is (not= blinker-in-4x4
                 (populate blinker-in-4x4)))
       (is (= blinker-in-4x4
@@ -98,5 +100,39 @@
              (-> blinker-in-4x4
                  populate
                  populate
+                 populate
+                 populate)))))
+
+  (let [two-color-blinker (-> (empty-field 4 4)
+                              (insert [1 0] 1)
+                              (insert [1 1] 2)
+                              (insert [1 2] 2))
+        symm-blinker (-> (empty-field 4 4)
+                         (insert [1 0] 1)
+                         (insert [1 1] 2)
+                         (insert [1 2] 1))]
+    (testing "two-color blinker"
+      ;; несимметричная мигалка вида
+      ;; .....
+      ;; .122.
+      ;; .....
+      ;; после двух циклов вырождается в гомогенную
+      ;; .....
+      ;; .222.
+      ;; .....
+      (is (not= two-color-blinker (-> two-color-blinker
+                                      populate
+                                      populate)))
+      ;; несимметричная мигалка стабилизируется через один свой цикл (2 хода)
+      (is (= (-> two-color-blinker
+                 populate)
+             (-> two-color-blinker
+                 populate
+                 populate
+                 populate))))
+    ;; симметричная мигалка стабильна
+    (testing "symmetrical blinker"
+      (is (= symm-blinker
+             (-> symm-blinker
                  populate
                  populate))))))

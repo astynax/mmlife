@@ -67,20 +67,22 @@
   [stats val]
   (letfn [(choice [xs]
             (nth xs (rand-int (count xs))))]
-    (let [ns (:neibs stats)]
-      (case [(:total stats) val]
-        [3 nil] (case (count ns)
-                  ;; все три родителя одного вида - вид сохраняется
-                  1 (first ns)
-                  ;; два вида - выбираем тот, которого больше
-                  2 (let [[[v1 c1] [v2 c2]] (seq ns)]
-                      (if (> c1 c2) v1 v2))
-                  ;; все три родителя разного вида - выбираем случайного
-                  (-> ns vals choice))
-        ;; ячейки с парой-тройкой соседей - выживают
-        ([2 1] [3 1]) val
-        ;; прочие - мрут
-        nil))))
+    (let [{:keys [neibs total]} stats]
+      (cond
+       ;; три родителя у пустой ячейки
+       (and (= total 3) (nil? val))
+       (case (count neibs)
+         ;; все три родителя одного вида - вид сохраняется
+         1 (-> neibs first first)
+         ;; два вида - выбираем тот, которого больше
+         2 (let [[[v1 c1] [v2 c2]] (seq neibs)]
+             (if (> c1 c2) v1 v2))
+         ;; все три родителя разного вида - выбираем случайного
+         (-> neibs vals choice))
+
+       ;; ячейки с парой-тройкой соседей - выживают
+       (and (#{2 3} total) val) val
+       true nil))))
 
 (defn cells-seq
   [{:keys [mx my]}]
@@ -90,22 +92,16 @@
 
 (defn populate
   [field]
-  (let [counts (neib-counts field)]
+  (let [stats (collect-stats field)]
     (update-in field [:cells]
                (fn [cells]
                  (persistent!
                   (reduce (fn [t p]
                             (let [old (get t p)]
-                              (if-let [val (rule (counts p 0) old)]
+                              (if-let [val (rule (stats p empty-stats) old)]
                                 (assoc! t p val)
                                 (if old
                                   (dissoc! t p)
                                   t))))
                           (transient cells)
                           (cells-seq field)))))))
-
-(defn viz
-  [{:keys [cells mx my]}]
-  (doseq [y (range (inc my))]
-    (println (apply str (for [x (range (inc mx))]
-                          (if (cells [x y]) "*" " "))))))
