@@ -6,7 +6,7 @@
    :mx (dec width)
    :my (dec height)})
 
-(defn wrap
+(defn- wrap
   [{:keys [mx my]} [x y]]
   (letfn [(wrap' [m n]
             (if (neg? n) m (if (> n m) 0 n)))]
@@ -27,18 +27,18 @@
     (wrap field [(+ x dx) (+ y dy)])))
 
 ;; статистика по соседям (с.) ячейки
-(def empty-stats
+(def ^:private empty-stats
   {:neibs {}  ;; отображение значения с. в кол-во с. с этим значением
    :total 0}) ;; общее кол-во с. у ячейки
 
-(defn update-stats
+(defn- update-stats
   [stats val]
   (-> stats
       (update-in [:total] inc)
       (update-in [:neibs val] #(inc (or % 0)))))
 
 ;; обновление transient map со значением по умолчанию
-(defn update-default!
+(defn- update-default!
   "update for transient"
   [tr key func default]
   (let [val (get tr key default)]
@@ -47,7 +47,7 @@
 ;; сборщик статистики по полю
 ;; возвращает отображение позиции ячейки в запись статистики
 ;; (отображаются позиции всех ячеек с ненулевым кол-вом соседей)
-(defn collect-stats
+(defn- collect-stats
   [field]
   (letfn [(process-cell! [res [pos val]]
             (reduce (fn [acc neib]
@@ -63,7 +63,7 @@
 
 ;;;;;;;;;;;;;; Обработка поля ;;;;;;;;;;;;;
 
-(defn rule
+(defn- rule
   [stats val]
   (letfn [(choice [xs]
             (nth xs (rand-int (count xs))))]
@@ -84,12 +84,13 @@
        (and (#{2 3} total) val) val
        true nil))))
 
-(defn cells-seq
+(defn- cells-seq
   [{:keys [mx my]}]
   (for [x (range (inc mx))
         y (range (inc my))]
     [x y]))
 
+;; производит один цикл над полем
 (defn populate
   [field]
   (let [stats (collect-stats field)]
@@ -105,3 +106,17 @@
                                   t))))
                           (transient cells)
                           (cells-seq field)))))))
+
+;; делит поле на ячейки сетки cols x rows
+(defn split-field
+  [cols rows field]
+  (letfn [(div [a b] (int (Math/floor (/ (float a) b))))]
+    (let [row-height (-> field :my inc (div rows))
+          col-width  (-> field :mx inc (div cols))
+          put (fn [m [[x y] v]]
+                (let [xx (div x col-width)
+                      yy (div y row-height)
+                      x (mod x col-width)
+                      y (mod y row-height)]
+                  (update-in m [[xx yy]] conj [[x y] v])))]
+      (reduce put {} (seq (:cells field))))))
