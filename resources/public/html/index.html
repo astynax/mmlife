@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>MMLife</title>
+        <style>
+          table.grid {
+            border-spacing: 0;
+          }
+          tbody#field tr {
+            height: 20px;
+          }
+          tbody#field td {
+            width: 20px;
+            padding: 0;
+            border: 1px solid black;
+          }
+          tbody#minimap tr {
+            height: 40px;
+          }
+          tbody#minimap td {
+            width: 40px;
+            padding: 0;
+            border: 1px solid blue;
+          }
+        </style>
+    </head>
+    <body>
+        <h1>MMLife</h1>
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <table class="grid">
+                  <tbody id="field">
+                  </tbody>
+                </table>
+              </td>
+              <td>
+                <table class="grid">
+                  <tbody id="minimap">
+                  </tbody>
+                </table>
+              <td>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </body>
+    <script type="text/javascript" src="/static/js/main.js"></script>
+</html>
