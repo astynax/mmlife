@@ -1,16 +1,26 @@
 (ns core
   (:require [dommy.core :as dommy]
             [dommy.utils :as utils]
-            [cljs.reader :refer [read-string]])
+            [cljs.reader :refer [read-string]]
+            [clojure.set])
   (:use-macros [dommy.macros :only [sel sel1 node]]))
 
+;; constants
 (def NBSP \u00A0)
 
-;; манипуляция с DOM'ом
-(defn cell-click
-  [data]
-  (js/alert (str data)))
+;; состояние
+(def pos (atom [0 0]))
+(def selected-cells (atom #{}))
 
+;; будущий websocket
+(declare ws)
+
+;; функция отправки сообщения через websocket
+(defn ws-send
+  [data]
+  (.send ws (pr-str data)))
+
+;; манипуляция с DOM'ом
 (defn cell [] (node [:td.cell NBSP]))
 (defn slice [] (node [:td.slice NBSP]))
 
@@ -32,22 +42,51 @@
     (reduce (partial reduce (fn [m [k v]] (assoc m k v)))
             {} array)))
 
+;; обработчик кликов в основном по полю
+(defn cell-handler
+  [pos]
+  (swap! selected-cells
+         (fn [s] (if (s pos)
+                  (disj s pos)
+                  (conj s pos)))))
+
 ;; работа с гридами
-(def field (sel1 :#field))
-(def minimap (sel1 :#minimap))
+(def ^:private field (sel1 :#field))
+(def ^:private minimap (sel1 :#minimap))
 
-(def field-cells (make-grid! field 16 16 cell cell-click))
-(def mmap-cells (make-grid! minimap 8 8 slice cell-click))
+(def field-cells (make-grid! field 16 16 cell cell-handler))
+(def mmap-cells (make-grid! minimap 8 8 slice #(ws-send [:pos %])))
 
-(defn fillFieldCell
-  [x y col]
-  (dommy/set-attr! (field-cells [x y])
-                   :style (str "background: " col ";")))
+(defn fillCell
+  [grid pos color]
+  (dommy/set-attr! (grid pos)
+                   :style (if (nil? color) ""
+                              (str "background: " color ";"))))
 
-(defn clearField
-  []
-  (doseq [el (vals field-cells)]
+(defn clearGrid
+  [grid]
+  (doseq [el (vals grid)]
     (dommy/set-attr! el :style "")))
+
+;; выставляет текст в ячейке грида (text=nil очищает ячейку)
+(defn setCellText
+  [grid pos text]
+  (dommy/set-text! (grid pos) (or text NBSP)))
+
+;; обновление выделения на ячейках
+(add-watch selected-cells :toggle
+           (fn [_ _ old new]
+             (let [to-clear (clojure.set/difference old new)]
+               (doseq [c to-clear]
+                 (setCellText field-cells c nil))
+               (doseq [c new]
+                 (setCellText field-cells c "*")))))
+
+;; реакция на изменение состояния
+(add-watch pos :display
+           (fn [_ _ old new]
+             (fillCell mmap-cells old nil)
+             (fillCell mmap-cells new "#404040")))
 
 ;; websocket
 (def ws (js/WebSocket. "ws://localhost:8080/ws"))
@@ -56,7 +95,14 @@
 (set! (.-onclose ws) (fn [] (.log js/console "closed!")))
 (set! (.-onmessage ws)
       (fn [message]
-        (do
-          (clearField)
-          (doseq [[[x y] _] (read-string (.-data message))]
-            (fillFieldCell x y "#ff00ff")))))
+        (let [[topic data] (read-string (.-data message))]
+          (case topic
+            :field
+            (do (clearGrid field-cells)
+                (doseq [[pos color] data]
+                  (fillCell field-cells pos color)))
+
+            :pos
+            (reset! pos data)
+
+            (.log js/console [topic data])))))
