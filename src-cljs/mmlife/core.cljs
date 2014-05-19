@@ -50,10 +50,18 @@
                   (disj s pos)
                   (conj s pos)))))
 
-;; работа с гридами
+;; ссылки на элементы DOM
 (def ^:private field (sel1 :#field))
 (def ^:private minimap (sel1 :#minimap))
+(def ^:private send-btn (sel1 :#send-selected))
+(dommy/set-attr! send-btn :disabled)
 
+(dommy/listen! send-btn :click
+               (fn []
+                 (do (ws-send [:cells @selected-cells])
+                     (reset! selected-cells #{}))))
+
+;; коллекции DOM-элементов, представляющих гриды
 (def field-cells (make-grid! field 16 16 cell cell-handler))
 (def mmap-cells (make-grid! minimap 8 8 slice #(ws-send [:pos %])))
 
@@ -80,7 +88,10 @@
                (doseq [c to-clear]
                  (setCellText field-cells c nil))
                (doseq [c new]
-                 (setCellText field-cells c "*")))))
+                 (setCellText field-cells c "*"))
+               (if (empty? new)
+                 (dommy/set-attr! send-btn :disabled)
+                 (dommy/remove-attr! send-btn :disabled)))))
 
 ;; реакция на изменение состояния
 (add-watch pos :display

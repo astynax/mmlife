@@ -14,7 +14,7 @@
 
 ;; хранилище состояния
 (defonce state (atom {;; glider на пустом поле
-                      :field (reduce #(cgol/insert %1 %2 "#002000")
+                      :field (reduce #(cgol/insert %1 %2 "#404040")
                                      (cgol/empty-field 128 128)
                                      [[1 0] [2 1] [0 2] [1 2] [2 2]])
                       ;; слайсов на первом ходу нет
@@ -29,13 +29,13 @@
 (defn update-state!
   [state]
   (swap! state (fn [{:keys [field tasks]}]
-                 (let [field' (if tasks
-                                (update-in field [:cells]
+                 (let [f (cgol/populate field)
+                       f' (if tasks
+                                (update-in f [:cells]
                                            #(reduce conj % tasks))
-                                field)
-                       f (cgol/populate field')
-                       s (slice f)]
-                   {:field f
+                                f)
+                       s (slice f')]
+                   {:field f'
                     :slices s
                     :tasks []}))))
 
@@ -55,12 +55,13 @@
 (defn process-message
   [chan [topic data]]
   (case topic
-    :cell
+    :cells
     (let [[dx dy] (get-in @chans [chan :pos])
-          [x y] data
-          x (+ x (* 16 dx))
-          y (+ y (* 16 dy))]
-      (swap! state update-in [:tasks] conj [[x y] "#408000"]))
+          dx (* 16 dx)
+          dy (* 16 dy)
+          cells (for [[x y] data]
+                  [[(+ x dx) (+ y dy)] "#408000"])]
+      (swap! state update-in [:tasks] into cells))
 
     :pos
     (do (server/send! chan (pr-str [:pos data])) ;; подтверждение
@@ -78,7 +79,8 @@
                        (fn [_] (swap! chans dissoc chan)))
       (server/on-receive chan
                          (fn [data]
-                           (process-message chan (read-string data)))))))
+                           (process-message chan (read-string data))))
+      (server/send! chan (pr-str [:pos [0 0]])))))
 
 (defroutes app-routes
   (GET "/" [] (slurp (io/resource "public/html/index.html")))
@@ -90,7 +92,7 @@
   []
   (let [port (or (config :port) 8080)]
     (println (str "Server started at " port))
-    (future (updating-loop 1000 (promise) chans state))
+    (future (updating-loop 500 (promise) chans state))
     (server/run-server
      (ch/site #'app-routes)
      {:port port})))
