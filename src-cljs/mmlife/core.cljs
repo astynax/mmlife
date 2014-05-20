@@ -100,7 +100,7 @@
              (fillCell mmap-cells new "#404040")))
 
 ;; websocket
-(def ws (js/WebSocket. "ws://localhost:8080/ws"))
+(def ws (js/WebSocket. (str "ws://" js/window.location.host "/ws")))
 
 (set! (.-onopen ws) (fn [] (.log js/console "opened!")))
 (set! (.-onclose ws) (fn [] (.log js/console "closed!")))
