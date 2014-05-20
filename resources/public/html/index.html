@@ -23,10 +23,22 @@
             border: 1px solid blue;
             cursor: pointer;
           }
+          div.centered {
+            width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+          p.justified {
+            text-align: justify;
+          }
+          h1.centered {
+            text-align: center;
+          }
         </style>
     </head>
     <body>
-        <h1>MMLife</h1>
+      <div class="centered">
+        <h1 class="centered">MMLife</h1>
         <table>
           <tbody>
             <tr>
@@ -47,9 +59,32 @@
               <td>
               </td>
             </tr>
+            <tr>
+              <td style="text-align: center">
+                <input id="send-selected" type="button" value="заселить!"/>
+              </td>
+            </tr>
           </tbody>
         </table>
-        <input id="send-selected" type="button" value="send"/>
+      </div>
+      <div class="centered">
+        <p class="justified">
+          <strong>MMLife</strong> это многопользовательская реализация
+          <a href="https://en.wikipedia.org/wiki/Conway%27s_game_of_life">
+            Conway's&nbsp;Game&nbsp;of&nbsp;Life
+          </a>. Все пользователи имеют доступ к единому полю,
+          замкнутому в тор. В каждый момент времени
+          можно наблюдать только часть поля сквозь небольшое "окошко",
+          причем миникарта (minimap) позволяет перемещать это "окошко"
+          в нужное место поля.
+        </p>
+        <p class="justified">
+          Каждый пользователь может "поселять" в видимые ячейки "организмы",
+          причем цвет ячеек будет соответствовать цвету пользователя.
+          Для этого нужно, кликая по полю (field), выбрать ячейки
+          для заселения и нажать кнопку <strong>"заселить!"</strong>.
+        </p>
+      </div>
     </body>
     <script type="text/javascript" src="/static/js/main.js"></script>
 </html>
