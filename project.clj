@@ -11,6 +11,7 @@
                  [sonian/carica "1.1.0" :exclusions [[cheshire]]]]
   :plugins [[lein-cljsbuild "1.0.3"]]
   :main mmlife.core
+  :aot [mmlife.core]
   :cljsbuild {:builds [{:source-paths ["src-cljs"]
                         :compiler {:output-to "resources/public/js/main.js"
                                    :optimizations :whitespace
