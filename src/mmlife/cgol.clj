@@ -1,10 +1,20 @@
-(ns mmlife.cgol)
+(ns mmlife.cgol
+  (:require [mmlife.utils :refer [div]]))
 
+;; конструктор пустого поля
 (defn empty-field
-  [width height]
-  {:cells {}
-   :mx (dec width)
-   :my (dec height)})
+  [width height
+   ;; кол-во секторов по горизонтали и вертикали
+   cols rows]
+  (let [row-height (div width rows)
+        col-width  (div height cols)]
+    {:cells {}
+     :mx (dec width)
+     :my (dec height)
+     :cols cols
+     :rows rows
+     :col-width col-width
+     :row-height row-height}))
 
 (defn- wrap
   [{:keys [mx my]} [x y]]
@@ -109,14 +119,11 @@
 
 ;; делит поле на ячейки сетки cols x rows
 (defn split-field
-  [cols rows field]
-  (letfn [(div [a b] (int (Math/floor (/ (float a) b))))]
-    (let [row-height (-> field :my inc (div rows))
-          col-width  (-> field :mx inc (div cols))
-          put (fn [m [[x y] v]]
-                (let [xx (div x col-width)
-                      yy (div y row-height)
-                      x (mod x col-width)
-                      y (mod y row-height)]
-                  (update-in m [[xx yy]] conj [[x y] v])))]
-      (reduce put {} (seq (:cells field))))))
+  [{:keys [col-width row-height cells]}]
+  (letfn [(put [m [[x y] v]]
+            (let [xx (div x col-width)
+                  yy (div y row-height)
+                  x (mod x col-width)
+                  y (mod y row-height)]
+              (update-in m [[xx yy]] conj [[x y] v])))]
+    (reduce put {} (seq cells))))
