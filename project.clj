@@ -12,7 +12,14 @@
   :plugins [[lein-cljsbuild "1.0.3"]]
   :main mmlife.core
   :aot [mmlife.core]
-  :cljsbuild {:builds [{:source-paths ["src-cljs"]
+  :cljsbuild {:builds {:dev
+                       {:source-paths ["src-cljs"]
+                        :jar true
                         :compiler {:output-to "resources/public/js/main.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}]})
+                                   :pretty-print true}}
+                       :prod
+                       {:source-paths ["src-cljs"]
+                        :compiler {:output-to "resources/public/js/main.js"
+                                   :optimizations :advanced
+                                   :pretty-print false}}}})
