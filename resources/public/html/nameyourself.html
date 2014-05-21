@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+  <head>
+    <meta charset="utf-8" />
+    <title>MMLife: Представьтесь</title>
+    <style>
+      div.centered {
+        width: 450px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      div.centered h3, h1 {
+        text-align: center;
+      }
+      label {
+        display: block;
+        width: 100%;
+      }
+      input.text-field {
+        width: 100%;
+      }
+      fieldset {
+        padding-left: 15px;
+        padding-right: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="centered">
+      <h1>MMLife</h1>
+      <h3>Представьтесь, пожалуйста!</h3>
+      <form id="userdata" action="newuser" method="POST">
+        <fieldset>
+          <legend>Кое что о Вас</legend>
+
+          <label for="nickname">Ник</label>
+          <input class="text-field"
+                 type="text" size="20"
+                 name="nickname" id="nickname"/><br/>
+
+          <label for="color">Цвет ячеек</label>
+          <input class="text-field"
+                 type="text"
+                 title="Указывайте в формате #RRGGBB"
+                 name="color" id="color"><br/>
+          <input type="submit" value="Готово!"/>
+          <p>
+            Если Вы не укажете цвет, то он будет выбран случайным образом
+          </p>
+        </fieldset>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,90 +1,92 @@
-<html>
-    <head>
-        <title>MMLife</title>
-        <style>
-          table.grid {
-            border-spacing: 0;
-          }
-          tbody#field tr {
-            height: 20px;
-          }
-          tbody#field td {
-            width: 20px;
-            padding: 0;
-            border: 1px solid black;
-            cursor: crosshair;
-          }
-          tbody#minimap tr {
-            height: 40px;
-          }
-          tbody#minimap td {
-            width: 40px;
-            padding: 0;
-            border: 1px solid blue;
-            cursor: pointer;
-          }
-          div.centered {
-            width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-          }
-          p.justified {
-            text-align: justify;
-          }
-          h1.centered {
-            text-align: center;
-          }
-        </style>
-    </head>
-    <body>
-      <div class="centered">
-        <h1 class="centered">MMLife</h1>
-        <table>
-          <tbody>
-            <tr>
-              <th>Field</th><th>Minimap</th>
-            </tr>
-            <tr>
-              <td>
-                <table class="grid">
-                  <tbody id="field">
-                  </tbody>
-                </table>
-              </td>
-              <td>
-                <table class="grid">
-                  <tbody id="minimap">
-                  </tbody>
-                </table>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td style="text-align: center">
-                <input id="send-selected" type="button" value="заселить!"/>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="centered">
-        <p class="justified">
-          <strong>MMLife</strong> это многопользовательская реализация
-          <a href="https://en.wikipedia.org/wiki/Conway%27s_game_of_life">
-            Conway's&nbsp;Game&nbsp;of&nbsp;Life
-          </a>. Все пользователи имеют доступ к единому полю,
-          замкнутому в тор. В каждый момент времени
-          можно наблюдать только часть поля сквозь небольшое "окошко",
-          причем миникарта (minimap) позволяет перемещать это "окошко"
-          в нужное место поля.
-        </p>
-        <p class="justified">
-          Каждый пользователь может "поселять" в видимые ячейки "организмы",
-          причем цвет ячеек будет соответствовать цвету пользователя.
-          Для этого нужно, кликая по полю (field), выбрать ячейки
-          для заселения и нажать кнопку <strong>"заселить!"</strong>.
-        </p>
-      </div>
-    </body>
-    <script type="text/javascript" src="/static/js/main.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>MMLife</title>
+    <style>
+      table.grid {
+      border-spacing: 0;
+      }
+      tbody#field tr {
+      height: 20px;
+      }
+      tbody#field td {
+      width: 20px;
+      padding: 0;
+      border: 1px solid black;
+      cursor: crosshair;
+      }
+      tbody#minimap tr {
+      height: 40px;
+      }
+      tbody#minimap td {
+      width: 40px;
+      padding: 0;
+      border: 1px solid blue;
+      cursor: pointer;
+      }
+      div.centered {
+      width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      }
+      p.justified {
+      text-align: justify;
+      }
+      h1.centered {
+      text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="centered">
+      <h1 class="centered">MMLife</h1>
+      <table>
+        <tbody>
+          <tr>
+            <th>Field</th><th>Minimap</th>
+          </tr>
+          <tr>
+            <td>
+              <table class="grid">
+                <tbody id="field">
+                </tbody>
+              </table>
+            </td>
+            <td>
+              <table class="grid">
+                <tbody id="minimap">
+                </tbody>
+              </table>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <input id="send-selected" type="button" value="заселить!"/>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="centered">
+      <p class="justified">
+        <strong>MMLife</strong> это многопользовательская реализация
+        <a href="https://en.wikipedia.org/wiki/Conway%27s_game_of_life">
+          Conway's&nbsp;Game&nbsp;of&nbsp;Life
+        </a>. Все пользователи имеют доступ к единому полю,
+        замкнутому в тор. В каждый момент времени
+        можно наблюдать только часть поля сквозь небольшое "окошко",
+        причем миникарта (minimap) позволяет перемещать это "окошко"
+        в нужное место поля.
+      </p>
+      <p class="justified">
+        Каждый пользователь может "поселять" в видимые ячейки "организмы",
+        причем цвет ячеек будет соответствовать цвету пользователя.
+        Для этого нужно, кликая по полю (field), выбрать ячейки
+        для заселения и нажать кнопку <strong>"заселить!"</strong>.
+      </p>
+    </div>
+  </body>
+  <script type="text/javascript" src="/static/js/main.js"></script>
 </html>
