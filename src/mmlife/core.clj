@@ -1,5 +1,5 @@
 (ns mmlife.core
-  (:gen-class true)
+  (:gen-class)
   (:require
    [clojure.java.io :as io]
 
@@ -103,7 +103,7 @@
 ;; роутинг приложения
 (defroutes app-routes
   (GET "/" {session :session}
-       (if (not (:nickname session))
+       (if-not (:nickname session)
          ;; пользователь не представился - попросим об этом
          (slurp (io/resource "public/html/nameyourself.html"))
          ;; пользователь представлен, выводим основной интерфейс
@@ -123,11 +123,11 @@
                        либо должен иметь формат #RRGGBB!")
 
                 :else
-                (-> (redirect-after-post "/")
-                    (assoc :session {:nickname nickname
-                                     :color (if (empty? color)
-                                              (utils/rand-color)
-                                              color)})))))
+                (assoc (redirect-after-post "/")
+                  :session {:nickname nickname
+                            :color (if (empty? color)
+                                     (utils/rand-color)
+                                     color)}))))
 
   (GET "/ws" [] ws-handler)
   (cr/resources "/static/")
