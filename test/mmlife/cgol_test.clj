@@ -4,19 +4,6 @@
 
 (def f10x10 (empty-field 10 10))
 
-(deftest wrap-test
-  (testing "normal cells"
-    (is (= (wrap f10x10 [0 0]) [0 0]))
-    (is (= (wrap f10x10 [9 9]) [9 9])))
-
-  (testing "out of bounds"
-    (is (= (wrap f10x10 [-1  0]) [9 0]))
-    (is (= (wrap f10x10 [ 0 -1]) [0 9]))
-    (is (= (wrap f10x10 [-1 -1]) [9 9]))
-    (is (= (wrap f10x10 [10  0]) [0 0]))
-    (is (= (wrap f10x10 [ 0 10]) [0 0]))
-    (is (= (wrap f10x10 [-1 10]) [9 0]))))
-
 (deftest insert-test
   (testing "single insert"
     (is (= (:cells (insert f10x10 [4 4] 1)) {[4 4] 1}))
@@ -52,16 +39,6 @@
            #{[9 9] [0 9] [1 9]
              [9 0]       [1 0]
              [9 1] [0 1] [1 1]}))))
-
-(deftest update-stats-test
-  (testing "functionality and commutativity"
-    (is (= {:neibs {1 5, 2 1} :total 6}
-           (-> {:neibs {1 4} :total 4}
-               (update-stats 1)
-               (update-stats 2))
-           (-> {:neibs {1 4} :total 4}
-               (update-stats 2)
-               (update-stats 1))))))
 
 (deftest populate-test
   (testing "populatig of empty filed"
