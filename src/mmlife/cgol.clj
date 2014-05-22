@@ -3,18 +3,17 @@
 
 ;; конструктор пустого поля
 (defn empty-field
-  [width height
-   ;; кол-во секторов по горизонтали и вертикали
-   cols rows]
-  (let [row-height (div width rows)
-        col-width  (div height cols)]
-    {:cells {}
-     :mx (dec width)
-     :my (dec height)
-     :cols cols
-     :rows rows
-     :col-width col-width
-     :row-height row-height}))
+  ([w h] (empty-field w h 1 1))
+  ([width height cols rows]
+   (let [row-height (div width rows)
+         col-width  (div height cols)]
+     {:cells {}
+      :mx (dec width)
+      :my (dec height)
+      :cols cols
+      :rows rows
+      :col-width col-width
+      :row-height row-height})))
 
 (defn- wrap
   [{:keys [mx my]} [x y]]
