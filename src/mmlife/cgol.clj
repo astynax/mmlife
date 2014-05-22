@@ -32,7 +32,7 @@
   [field [x y]]
   (for [dy [-1 0 1]
         dx [-1 0 1]
-        :when (not (= dx dy 0))]
+        :when (not= dx dy 0)]
     (wrap field [(+ x dx) (+ y dy)])))
 
 ;; статистика по соседям (с.) ячейки
