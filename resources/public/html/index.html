@@ -5,36 +5,41 @@
     <title>MMLife</title>
     <style>
       table.grid {
-      border-spacing: 0;
+        border-spacing: 0;
       }
       tbody#field tr {
-      height: 20px;
+        height: 20px;
       }
       tbody#field td {
-      width: 20px;
-      padding: 0;
-      border: 1px solid black;
-      cursor: crosshair;
+        width: 20px;
+        padding: 0;
+        border: 1px solid black;
+        cursor: crosshair;
       }
       tbody#minimap tr {
-      height: 40px;
+        height: 40px;
       }
       tbody#minimap td {
-      width: 40px;
-      padding: 0;
-      border: 1px solid blue;
-      cursor: pointer;
+        width: 40px;
+        padding: 0;
+        border: 1px solid blue;
+        cursor: pointer;
       }
       div.centered {
-      width: 700px;
-      margin-left: auto;
-      margin-right: auto;
+        width: 900px;
+        margin-left: auto;
+        margin-right: auto;
       }
       p.justified {
-      text-align: justify;
+        text-align: justify;
       }
       h1.centered {
-      text-align: center;
+        text-align: center;
+      }
+      ul#users {
+        width: 200px;
+      }
+      ul#users li {
       }
     </style>
   </head>
@@ -44,7 +49,7 @@
       <table>
         <tbody>
           <tr>
-            <th>Field</th><th>Minimap</th>
+            <th>Field</th><th>Minimap</th><th>Players</th>
           </tr>
           <tr>
             <td>
@@ -58,7 +63,10 @@
                 <tbody id="minimap">
                 </tbody>
               </table>
+            </td>
             <td>
+              <ul id="users">
+              </ul>
             </td>
           </tr>
           <tr>
